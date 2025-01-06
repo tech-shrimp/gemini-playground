@@ -44,11 +44,10 @@ export class VideoManager {
 
         this.setupFramePreview();
 
-        // 添加摄像头相关状态
-        this.stream = null;
+        // 摄像头状态，用户切换镜头
         this.facingMode = 'user';
-        this.hasMultipleCameras = false;
         this.onFrame = null;
+        this.fps = null;
         
         // 获取翻转按钮元素并添加事件监听
         this.flipCameraButton = document.getElementById('flip-camera');
@@ -130,7 +129,7 @@ export class VideoManager {
     async start(fps, onFrame) {
         try {
             this.onFrame = onFrame;
-            
+            this.fps = fps;
             Logger.info('Starting video manager');
             this.videoContainer.style.display = 'block';
             console.log("fps:",fps);
@@ -150,8 +149,6 @@ export class VideoManager {
                 this.processFrame(base64Data, onFrame);
             });
 
-            // 保存stream引用以便后续切换摄像头
-            this.stream = this.videoRecorder.stream;
             this.isActive = true;
             return true;
 
@@ -178,7 +175,6 @@ export class VideoManager {
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
-            console.log(canvas.width,canvas.height);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -234,7 +230,7 @@ export class VideoManager {
             Logger.info('Flipping camera');
             this.facingMode = this.facingMode === 'user' ? 'environment' : 'user';         
             this.stop();
-            await this.start(this.onFrame);
+            await this.start(this.fps,this.onFrame);
             Logger.info('Camera flipped successfully');
         } catch (error) {
             Logger.error('Error flipping camera:', error);
