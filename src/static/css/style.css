@@ -466,13 +466,6 @@ body {
     gap: 10px;
 }
 
-#api-key {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 300px;
-}
-
 #voice-select {
     padding: 8px;
     border: 1px solid #ccc;

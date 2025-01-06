@@ -27,7 +27,6 @@ const screenIcon = document.getElementById('screen-icon');
 const screenContainer = document.getElementById('screen-container');
 const screenPreview = document.getElementById('screen-preview');
 const inputAudioVisualizer = document.getElementById('input-audio-visualizer');
-const apiKeyInput = document.getElementById('api-key');
 const voiceSelect = document.getElementById('voice-select');
 const fpsInput = document.getElementById('fps-input');
 const configToggle = document.getElementById('config-toggle');
@@ -38,15 +37,11 @@ const applyConfigButton = document.getElementById('apply-config');
 
 
 // Load saved values from localStorage
-const savedApiKey = localStorage.getItem('gemini_api_key');
 const savedVoice = localStorage.getItem('gemini_voice');
 const savedFPS = localStorage.getItem('video_fps');
 const savedSystemInstruction = localStorage.getItem('system_instruction');
 
 
-if (savedApiKey) {
-    apiKeyInput.value = savedApiKey;
-}
 if (savedVoice) {
     voiceSelect.value = savedVoice;
 }
@@ -243,13 +238,7 @@ async function resumeAudioContext() {
  * @returns {Promise<void>}
  */
 async function connectToWebsocket() {
-    if (!apiKeyInput.value) {
-        logMessage('Please input API Key', 'system');
-        return;
-    }
-
     // Save values to localStorage
-    localStorage.setItem('gemini_api_key', apiKeyInput.value);
     localStorage.setItem('gemini_voice', voiceSelect.value);
     localStorage.setItem('system_instruction', systemInstructionInput.value);
 
@@ -260,21 +249,20 @@ async function connectToWebsocket() {
             speechConfig: {
                 voiceConfig: { 
                     prebuiltVoiceConfig: { 
-                        voiceName: voiceSelect.value    // You can change voice in the config.js file
+                        voiceName: voiceSelect.value
                     }
                 }
             },
-
         },
         systemInstruction: {
             parts: [{
-                text: systemInstructionInput.value     // You can change system instruction in the config.js file
+                text: systemInstructionInput.value
             }],
         }
     };  
 
     try {
-        await client.connect(config,apiKeyInput.value);
+        await client.connect(config, CONFIG.API.KEY);
         isConnected = true;
         await resumeAudioContext();
         connectButton.textContent = 'Disconnect';
