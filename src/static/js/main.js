@@ -600,42 +600,51 @@ client.on('error', async (error) => {
 // Prevent Sleep Button
 const preventSleepButton = document.getElementById('prevent-sleep-button');
 preventSleepButton.addEventListener('click', async () => {
-    // Prevent screen sleep
     if ('wakeLock' in navigator) {
         try {
-            wakeLock = await navigator.wakeLock.request('screen');
-            logMessage('Screen sleep prevention activated', 'system');
+            if (!wakeLock) {
+                wakeLock = await navigator.wakeLock.request('screen');
+                preventSleepButton.classList.add('active');
+                logMessage('Screen sleep prevention activated', 'system');
+            } else {
+                await releaseWakeLock();
+                preventSleepButton.classList.remove('active');
+            }
         } catch (error) {
-            logMessage(`Failed to activate screen sleep prevention: ${error.message}`, 'system');
+            logMessage(`Failed to toggle screen sleep prevention: ${error.message}`, 'system');
         }
     } else {
         logMessage('Wake Lock API not supported', 'system');
     }
 });
 
-// 在适当的地方释放 Wake Lock
+// Update wake lock release function
 function releaseWakeLock() {
     if (wakeLock) {
-        wakeLock.release().then(() => {
+        return wakeLock.release().then(() => {
             wakeLock = null;
+            preventSleepButton.classList.remove('active');
             logMessage('Screen sleep prevention deactivated', 'system');
         });
     }
+    return Promise.resolve();
 }
-
-// 在页面卸载时释放 Wake Lock
-window.addEventListener('beforeunload', releaseWakeLock);
 
 // Use Back Camera Button
 const useBackCameraButton = document.getElementById('use-back-camera-button');
 useBackCameraButton.addEventListener('click', async () => {
-    // Switch to back camera
-    if (videoManager) {
-        videoManager.facingMode = 'environment'; // Set to back camera
-        await videoManager.start(videoManager.fps, videoManager.onFrame);
-        logMessage('Switched to back camera', 'system');
-    } else {
-        logMessage('Video manager not initialized', 'system');
+    try {
+        if (videoManager) {
+            useBackCameraButton.classList.toggle('active');
+            videoManager.facingMode = videoManager.facingMode === 'user' ? 'environment' : 'user';
+            await videoManager.start(videoManager.fps, videoManager.onFrame);
+            logMessage(`Switched to ${videoManager.facingMode === 'user' ? 'front' : 'back'} camera`, 'system');
+        } else {
+            logMessage('Video manager not initialized', 'system');
+        }
+    } catch (error) {
+        useBackCameraButton.classList.remove('active');
+        logMessage(`Failed to switch camera: ${error.message}`, 'system');
     }
 });
 
