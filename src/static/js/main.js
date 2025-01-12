@@ -81,6 +81,7 @@ let videoManager = null;
 let isScreenSharing = false;
 let screenRecorder = null;
 let isUsingTool = false;
+let wakeLock = null;
 
 // Multimodal Client
 const client = new MultimodalLiveClient();
@@ -599,20 +600,32 @@ client.on('error', async (error) => {
 
 // Prevent Sleep Button
 const preventSleepButton = document.getElementById('prevent-sleep-button');
-preventSleepButton.addEventListener('click', () => {
+preventSleepButton.addEventListener('click', async () => {
     // Prevent screen sleep
-    if (typeof window.navigator !== 'undefined' && window.navigator.wakeLock) {
-        window.navigator.wakeLock.request('screen')
-            .then(() => {
-                logMessage('Screen sleep prevention activated', 'system');
-            })
-            .catch((error) => {
-                logMessage(`Failed to activate screen sleep prevention: ${error.message}`, 'system');
-            });
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            logMessage('Screen sleep prevention activated', 'system');
+        } catch (error) {
+            logMessage(`Failed to activate screen sleep prevention: ${error.message}`, 'system');
+        }
     } else {
         logMessage('Wake Lock API not supported', 'system');
     }
 });
+
+// 在适当的地方释放 Wake Lock
+function releaseWakeLock() {
+    if (wakeLock) {
+        wakeLock.release().then(() => {
+            wakeLock = null;
+            logMessage('Screen sleep prevention deactivated', 'system');
+        });
+    }
+}
+
+// 在页面卸载时释放 Wake Lock
+window.addEventListener('beforeunload', releaseWakeLock);
 
 // Use Back Camera Button
 const useBackCameraButton = document.getElementById('use-back-camera-button');
