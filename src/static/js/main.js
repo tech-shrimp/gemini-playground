@@ -644,7 +644,11 @@ document.addEventListener('visibilitychange', async () => {
         if (!isConnected) {
             logMessage('Attempting to reconnect...', 'system');
             await connectToWebsocket();
+        } else {
+            logMessage('Welcome back! Continuing the conversation.', 'system');
         }
+    } else {
+        logMessage('You have switched away from the app.', 'system');
     }
 });
   
