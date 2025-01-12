@@ -647,6 +647,12 @@ document.addEventListener('visibilitychange', async () => {
         } else {
             logMessage('Welcome back! Continuing the conversation.', 'system');
         }
+
+        // 检查麦克风状态并重新打开
+        if (!isRecording) {
+            logMessage('Reopening microphone...', 'system');
+            await handleMicToggle();
+        }
     } else {
         logMessage('You have switched away from the app.', 'system');
     }
