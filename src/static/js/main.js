@@ -596,4 +596,34 @@ client.on('error', async (error) => {
         }
     }
 });
+
+// Prevent Sleep Button
+const preventSleepButton = document.getElementById('prevent-sleep-button');
+preventSleepButton.addEventListener('click', () => {
+    // Prevent screen sleep
+    if (typeof window.navigator !== 'undefined' && window.navigator.wakeLock) {
+        window.navigator.wakeLock.request('screen')
+            .then(() => {
+                logMessage('Screen sleep prevention activated', 'system');
+            })
+            .catch((error) => {
+                logMessage(`Failed to activate screen sleep prevention: ${error.message}`, 'system');
+            });
+    } else {
+        logMessage('Wake Lock API not supported', 'system');
+    }
+});
+
+// Use Back Camera Button
+const useBackCameraButton = document.getElementById('use-back-camera-button');
+useBackCameraButton.addEventListener('click', async () => {
+    // Switch to back camera
+    if (videoManager) {
+        videoManager.facingMode = 'environment'; // Set to back camera
+        await videoManager.start(videoManager.fps, videoManager.onFrame);
+        logMessage('Switched to back camera', 'system');
+    } else {
+        logMessage('Video manager not initialized', 'system');
+    }
+});
   
