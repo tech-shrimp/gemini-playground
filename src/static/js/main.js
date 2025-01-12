@@ -261,21 +261,20 @@ async function connectToWebsocket() {
             speechConfig: {
                 voiceConfig: { 
                     prebuiltVoiceConfig: { 
-                        voiceName: voiceSelect.value    // You can change voice in the config.js file
+                        voiceName: voiceSelect.value
                     }
                 }
             },
-
         },
         systemInstruction: {
             parts: [{
-                text: systemInstructionInput.value     // You can change system instruction in the config.js file
+                text: systemInstructionInput.value
             }],
         }
     };  
 
     try {
-        await client.connect(config,apiKeyInput.value);
+        await client.connect(config, apiKeyInput.value);
         isConnected = true;
         await resumeAudioContext();
         connectButton.textContent = 'Disconnect';
@@ -637,6 +636,15 @@ useBackCameraButton.addEventListener('click', async () => {
         logMessage('Switched to back camera', 'system');
     } else {
         logMessage('Video manager not initialized', 'system');
+    }
+});
+
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+        if (!isConnected) {
+            logMessage('Attempting to reconnect...', 'system');
+            await connectToWebsocket();
+        }
     }
 });
   
