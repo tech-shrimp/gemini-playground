@@ -557,10 +557,22 @@ screenButton.addEventListener('click', handleScreenShare);
 screenButton.disabled = true;
 
 // 在页面加载时，从 localStorage 加载 API Key
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const savedApiKey = localStorage.getItem('gemini_api_key');
     if (savedApiKey) {
         apiKeyInput.value = savedApiKey;
+    }
+    
+    // 自动连接
+    if (savedApiKey) {  // 确保有 API Key 才尝试连接
+        try {
+            await connectToWebsocket();
+            await handleMicToggle();
+        } catch (error) {
+            Logger.error('Initial connection or mic toggle failed:', error);
+        }
+    } else {
+        logMessage('API Key is missing. Please input API Key to connect.', 'system');
     }
 });
 
@@ -569,5 +581,19 @@ applyConfigButton.addEventListener('click', () => {
     localStorage.setItem('gemini_api_key', apiKeyInput.value);
     // 其他配置保存逻辑...
 });
-  
+
+client.on('error', async (error) => {
+    Logger.error('WebSocket error:', error);
+    logMessage(`WebSocket error: ${error.message}`, 'system');
+    
+    // 自动重新连接
+    if (!isConnected) {
+        try {
+            await connectToWebsocket();
+            await handleMicToggle();
+        } catch (reconnectError) {
+            Logger.error('Reconnection failed:', reconnectError);
+        }
+    }
+});
   
