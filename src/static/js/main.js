@@ -646,15 +646,15 @@ document.addEventListener('visibilitychange', async () => {
             await connectToWebsocket();
         } else {
             logMessage('Welcome back! Continuing the conversation.', 'system');
-        }
-
-        // 检查麦克风状态并重新打开
-        if (!isRecording) {
-            logMessage('Reopening microphone...', 'system');
+            // 重新打开麦克风
             await handleMicToggle();
         }
     } else {
-        logMessage('You have switched away from the app.', 'system');
+        logMessage('You have switched away from the app. Closing microphone.', 'system');
+        // 关闭麦克风
+        if (isRecording) {
+            await handleMicToggle();
+        }
     }
 });
   
