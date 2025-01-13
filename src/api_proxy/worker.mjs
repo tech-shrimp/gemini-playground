@@ -198,10 +198,11 @@ const harmCategory = [
 ];
 
 const safetySettings = (modelName) => {
-  const threshold = modelName?.includes('2.0') ? 'OFF' : 'BLOCK_NONE';
+  let threshold = modelName?.includes('2.0') ? 'OFF' : 'BLOCK_NONE';
+  
   return harmCategory.map(category => ({
     category,
-    threshold
+    threshold: category === "HARM_CATEGORY_CIVIC_INTEGRITY" ? "BLOCK_ONLY_HIGH" : threshold
   }));
 }
 
