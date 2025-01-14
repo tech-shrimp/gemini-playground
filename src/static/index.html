@@ -5,85 +5,137 @@
 -->
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini 2.0 Flash Multimodal Live API Client</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet" href="css/style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title data-i18n="title">Gemini 2.0 多模态实时 API 客户端</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+	<link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div id="app">
-        <div class="settings">
-            <input type="password" id="api-key" placeholder="Please Input Gemini API Key" />
-            <button id="config-toggle" class="material-symbols-outlined">settings</button>
-        </div>
-        <div id="config-container" class="hidden-mobile">
-            <div class="config-wrapper">
-                <div class="setting-container">
-                    <span class="setting-label">Sound: </span>
-                    <select id="voice-select">
-                        <option value="Puck">Puck (Male)</option>
-                        <option value="Charon">Charon (Male)</option>
-                        <option value="Fenrir">Fenrir (Male)</option>
-                        <option value="Kore">Kore (Female)</option>
-                        <option value="Aoede" selected>Aoede (Female)</option>
-                    </select>
-                </div>
-                <div class="setting-container">
-                    <span class="setting-label">Response Type: </span>
-                    <select id="response-type-select">
-                        <option value="text">Text</option>
-                        <option value="audio" selected>Audio</option>
-                    </select>
-                </div>
-                <div class="setting-container">
-                    <span class="setting-label">Video FPS: </span>
-                    <input type="number" id="fps-input" placeholder="Video FPS" value="1" min="1" max="30" step="1"/>
-                    <span class="fps-help">Higher FPS need more network bandwidth</span>
-                </div>
-                <textarea id="system-instruction" placeholder="Enter custom system instructions..." rows="6"></textarea>
-                <button id="apply-config">Confirm</button>
-            </div>
-        </div>
-        <button id="connect-button">Connect</button>
-        <div id="logs-container"></div>
-        <input type="text" id="message-input" placeholder="Enter message...">
-        <button id="send-button">Send</button>
-        <button id="mic-button">
-            <span id="mic-icon" class="material-symbols-outlined">mic</span>
-        </button>
-        <button id="camera-button">
-            <span id="camera-icon" class="material-symbols-outlined">videocam</span>
-        </button>
-        <button id="screen-button">
-            <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
-        </button>
-        <div class="audio-visualizers">
-            <div class="visualizer-container">
-                <label>Input Audio</label>
-                <div id="input-audio-visualizer"></div>
-            </div>
-            <div class="visualizer-container">
-                <label>Output Audio</label>
-                <div id="audio-visualizer"></div>
-            </div>
-        </div>
-        <div id="video-container" style="display: none;">
-            <video id="preview" playsinline autoplay muted></video>
-            <div class="video-controls">
-                <button id="stop-video">Stop Video</button>
-                <button id="flip-camera">
-                    <span class="material-symbols-outlined">flip_camera_ios</span>
-                </button>
-            </div>
-        </div>
-        <div id="screen-container" style="display: none;">
-            <video id="screen-preview" playsinline autoplay muted></video>
-            <button class="close-button material-symbols-outlined">close</button>
-        </div>
-    </div>
-    <script src="js/main.js" type="module"></script>
+	<div id="app">
+		<div class="header">
+			<div class="settings">
+				<input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder" />
+				<div class="config-wrapper">
+					<button id="config-toggle" class="icon-button">
+						<span class="material-symbols-outlined">settings</span>
+					</button>
+					<div id="config-container" class="config-panel hidden-mobile">
+						<div class="setting-container">
+							<span class="setting-label" data-i18n="language">Language: </span>
+							<select id="language-select" class="styled-select">
+								<option value="zh">中文</option>
+								<option value="en">English</option>
+							</select>
+						</div>
+						<div class="setting-container">
+							<span class="setting-label" data-i18n="sound">Sound: </span>
+							<select id="voice-select" class="styled-select">
+								<option value="Puck">Puck (Male)</option>
+								<option value="Charon">Charon (Male)</option>
+								<option value="Fenrir">Fenrir (Male)</option>
+								<option value="Kore">Kore (Female)</option>
+								<option value="Aoede" selected>Aoede (Female)</option>
+							</select>
+						</div>
+						<div class="setting-container">
+							<span class="setting-label" data-i18n="responseType">Response Type: </span>
+							<select id="response-type-select" class="styled-select">
+								<option value="text" selected data-i18n="text">Text</option>
+								<option value="audio" data-i18n="audio">Audio</option>
+							</select>
+						</div>
+						<div class="setting-container">
+							<span class="setting-label" data-i18n="videoFps">Video FPS: </span>
+							<input type="number" id="fps-input" value="1" min="1" max="30" step="1" class="styled-input" />
+							<span class="fps-help" data-i18n="fpsHelp">Higher FPS need more network bandwidth</span>
+						</div>
+						<textarea id="system-instruction" data-i18n-placeholder="systemInstructionPlaceholder" rows="6"
+							class="styled-textarea"></textarea>
+						<button id="apply-config" class="styled-button" data-i18n="confirm">Confirm</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="config-overlay" class="config-overlay"></div>
+
+		<div class="main-content">
+			<button id="connect-button" class="styled-button primary" data-i18n="connect">Connect</button>
+			<div id="logs-container" class="logs"></div>
+
+			<div class="input-group">
+				<input type="text" id="message-input" data-i18n-placeholder="messagePlaceholder" class="styled-input" />
+				<div class="button-group">
+					<button id="send-button" class="styled-button" data-i18n="send">Send</button>
+					<button id="mic-button" class="icon-button">
+						<span id="mic-icon" class="material-symbols-outlined">mic</span>
+					</button>
+					<button id="camera-button" class="icon-button">
+						<span id="camera-icon" class="material-symbols-outlined">videocam</span>
+					</button>
+					<button id="screen-button" class="icon-button">
+						<span id="screen-icon" class="material-symbols-outlined">screen_share</span>
+					</button>
+				</div>
+			</div>
+
+			<div class="audio-visualizers">
+				<div class="visualizer-container">
+					<label data-i18n="inputAudio">Input Audio</label>
+					<div id="input-audio-visualizer"></div>
+				</div>
+				<div class="visualizer-container">
+					<label data-i18n="outputAudio">Output Audio</label>
+					<div id="audio-visualizer"></div>
+				</div>
+			</div>
+
+			<div id="video-container" class="media-container" style="display: none;">
+				<video id="preview" playsinline autoplay muted></video>
+				<div class="video-controls">
+					<button id="stop-video" class="styled-button" data-i18n="stopVideo">Stop Video</button>
+					<button id="flip-camera" class="icon-button">
+						<span class="material-symbols-outlined">flip_camera_ios</span>
+					</button>
+				</div>
+			</div>
+
+			<div id="screen-container" class="media-container" style="display: none;">
+				<video id="screen-preview" playsinline autoplay muted></video>
+				<button class="close-button material-symbols-outlined">close</button>
+			</div>
+		</div>
+	</div>
+	<script type="module">
+		import i18n from './js/i18n.js';
+		window.i18n = i18n;
+		// 初始化语言
+		const currentLanguage = localStorage.getItem("language") || "zh";
+		const updateLanguage = (lang) => {
+			document.querySelectorAll("[data-i18n]").forEach((element) => {
+				const key = element.getAttribute("data-i18n");
+				if (i18n[lang][key]) {
+					element.textContent = i18n[lang][key];
+				}
+			});
+			document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+				const key = element.getAttribute("data-i18n-placeholder");
+				if (i18n[lang][key]) {
+					element.placeholder = i18n[lang][key];
+				}
+			});
+			document.title = i18n[lang].title;
+		};
+		updateLanguage(currentLanguage);
+	</script>
+	<script src="js/main.js" type="module"></script>
 </body>
-</html> 
+
+</html>
