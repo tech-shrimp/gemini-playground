@@ -338,6 +338,7 @@ const transformRequest = async (req) => ({
   ...await transformMessages(req.messages),
   safetySettings: safetySettings(req.model),
   generationConfig: transformConfig(req),
+  tools: req.tools,
 });
 
 const generateChatcmplId = () => {
