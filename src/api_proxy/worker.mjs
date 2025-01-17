@@ -198,7 +198,7 @@ const harmCategory = [
 ];
 
 const safetySettings = (modelName) => {
-  let threshold = modelName?.includes('2.0') ? 'OFF' : 'BLOCK_NONE';
+  let threshold = modelName?.includes('2.0') && modelName === 'gemini-2.0-flash-exp' ? 'OFF' : 'BLOCK_NONE';
   
   return harmCategory.map(category => ({
     category,
