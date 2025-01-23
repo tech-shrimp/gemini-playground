@@ -17,21 +17,6 @@ const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-button');
 const micButton = document.getElementById('mic-button');
 const micIcon = document.getElementById('mic-icon');
-const inputVolume = document.getElementById('input-volume');
-const volumeValue = document.querySelector('.volume-value');
-import { MultimodalLiveClient } from './core/websocket-client.js';
-import { AudioStreamer } from './audio/audio-streamer.js';
-import { AudioRecorder } from './audio/audio-recorder.js';
-import { CONFIG } from './config/config.js';
-import { Logger } from './utils/logger.js';
-import { VideoManager } from './video/video-manager.js';
-import { ScreenRecorder } from './video/screen-recorder.js';
-
-/**
- * @fileoverview Main entry point for the application.
- * Initializes and manages the UI, audio, video, and WebSocket interactions.
- */
-
 const audioVisualizer = document.getElementById('audio-visualizer');
 const connectButton = document.getElementById('connect-button');
 const cameraButton = document.getElementById('camera-button');
@@ -42,6 +27,7 @@ const screenIcon = document.getElementById('screen-icon');
 const screenContainer = document.getElementById('screen-container');
 const screenPreview = document.getElementById('screen-preview');
 const inputAudioVisualizer = document.getElementById('input-audio-visualizer');
+const inputVolumeSlider = document.getElementById('input-volume');
 const apiKeyInput = document.getElementById('api-key');
 const voiceSelect = document.getElementById('voice-select');
 const fpsInput = document.getElementById('fps-input');
@@ -194,9 +180,6 @@ async function handleMicToggle() {
         try {
             await ensureAudioInitialized();
             audioRecorder = new AudioRecorder();
-            
-            // 设置初始音量
-            audioRecorder.setVolume(parseFloat(inputVolume.value));
             
             const inputAnalyser = audioCtx.createAnalyser();
             inputAnalyser.fftSize = 256;
@@ -364,12 +347,15 @@ function handleSendMessage() {
 }
 
 // Event Listeners
-// 音量控制事件监听
-inputVolume.addEventListener('input', (e) => {
+inputVolumeSlider.addEventListener('input', (event) => {
+    const volume = parseFloat(event.target.value);
     if (audioRecorder) {
-        const value = parseFloat(e.target.value);
-        audioRecorder.setVolume(value);
-        volumeValue.textContent = `${Math.round(value * 100)}%`;
+        audioRecorder.setVolume(volume);
+    }
+    // Update visual feedback
+    const visualizer = inputAudioVisualizer.querySelector('.audio-bar');
+    if (visualizer) {
+        visualizer.style.width = `${volume * 100}%`;
     }
 });
 

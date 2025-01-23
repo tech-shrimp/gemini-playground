@@ -26,22 +26,9 @@ export class AudioRecorder {
         // Bind methods to preserve context
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
-        this.setVolume = this.setVolume.bind(this);
 
         // Add state tracking
         this.isRecording = false;
-    }
-
-    /**
-     * @method setVolume
-     * @description Sets the input volume level
-     * @param {number} value - Volume level (0.0 to 2.0)
-     */
-    setVolume(value) {
-        this.volume = Math.max(0, Math.min(2, value));
-        if (this.gainNode) {
-            this.gainNode.gain.value = this.volume;
-        }
     }
 
     /**
@@ -77,7 +64,7 @@ export class AudioRecorder {
                 }
             };
 
-            // Create and configure gain node
+            // Create gain node and set initial volume
             this.gainNode = this.audioContext.createGain();
             this.gainNode.gain.value = this.volume;
 
