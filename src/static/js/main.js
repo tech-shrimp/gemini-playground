@@ -27,6 +27,7 @@ const screenIcon = document.getElementById('screen-icon');
 const screenContainer = document.getElementById('screen-container');
 const screenPreview = document.getElementById('screen-preview');
 const inputAudioVisualizer = document.getElementById('input-audio-visualizer');
+const inputVolumeSlider = document.getElementById('input-volume');
 const apiKeyInput = document.getElementById('api-key');
 const voiceSelect = document.getElementById('voice-select');
 const fpsInput = document.getElementById('fps-input');
@@ -81,6 +82,7 @@ let videoManager = null;
 let isScreenSharing = false;
 let screenRecorder = null;
 let isUsingTool = false;
+let wakeLock = null;
 
 // Multimodal Client
 const client = new MultimodalLiveClient();
@@ -179,6 +181,11 @@ async function handleMicToggle() {
             await ensureAudioInitialized();
             audioRecorder = new AudioRecorder();
             
+            // Initialize gain node before starting recording
+            if (audioRecorder.gainNode) {
+                audioRecorder.gainNode.gain.value = inputVolumeSlider.value;
+            }
+            
             const inputAnalyser = audioCtx.createAnalyser();
             inputAnalyser.fftSize = 256;
             const inputDataArray = new Uint8Array(inputAnalyser.frequencyBinCount);
@@ -260,21 +267,20 @@ async function connectToWebsocket() {
             speechConfig: {
                 voiceConfig: { 
                     prebuiltVoiceConfig: { 
-                        voiceName: voiceSelect.value    // You can change voice in the config.js file
+                        voiceName: voiceSelect.value
                     }
                 }
             },
-
         },
         systemInstruction: {
             parts: [{
-                text: systemInstructionInput.value     // You can change system instruction in the config.js file
+                text: systemInstructionInput.value
             }],
         }
     };  
 
     try {
-        await client.connect(config,apiKeyInput.value);
+        await client.connect(config, apiKeyInput.value);
         isConnected = true;
         await resumeAudioContext();
         connectButton.textContent = 'Disconnect';
@@ -346,6 +352,18 @@ function handleSendMessage() {
 }
 
 // Event Listeners
+inputVolumeSlider.addEventListener('input', (event) => {
+    const volume = parseFloat(event.target.value);
+    if (audioRecorder) {
+        audioRecorder.setVolume(volume);
+    }
+    // Update visual feedback
+    const visualizer = inputAudioVisualizer.querySelector('.audio-bar');
+    if (visualizer) {
+        visualizer.style.width = `${volume * 100}%`;
+    }
+});
+
 client.on('open', () => {
     logMessage('WebSocket connection opened', 'system');
 });
@@ -555,4 +573,117 @@ function stopScreenSharing() {
 
 screenButton.addEventListener('click', handleScreenShare);
 screenButton.disabled = true;
-  
+
+// 在页面加载时，从 localStorage 加载 API Key
+document.addEventListener('DOMContentLoaded', async () => {
+    // 设置音量滑块默认值为50%
+    inputVolumeSlider.value = 0.5;
+    
+    const savedApiKey = localStorage.getItem('gemini_api_key');
+    if (savedApiKey) {
+        apiKeyInput.value = savedApiKey;
+    }
+    
+    // 自动连接
+    if (savedApiKey) {  // 确保有 API Key 才尝试连接
+        try {
+            await connectToWebsocket();
+            await handleMicToggle();
+        } catch (error) {
+            Logger.error('Initial connection or mic toggle failed:', error);
+        }
+    } else {
+        logMessage('API Key is missing. Please input API Key to connect.', 'system');
+    }
+});
+
+// 当用户输入 API Key 并点击保存按钮时，将其保存到 localStorage
+applyConfigButton.addEventListener('click', () => {
+    localStorage.setItem('gemini_api_key', apiKeyInput.value);
+    // 其他配置保存逻辑...
+});
+
+client.on('error', async (error) => {
+    Logger.error('WebSocket error:', error);
+    logMessage(`WebSocket error: ${error.message}`, 'system');
+    
+    // 自动重新连接
+    if (!isConnected) {
+        try {
+            await connectToWebsocket();
+            await handleMicToggle();
+        } catch (reconnectError) {
+            Logger.error('Reconnection failed:', reconnectError);
+        }
+    }
+});
+
+// Prevent Sleep Button
+const preventSleepButton = document.getElementById('prevent-sleep-button');
+preventSleepButton.addEventListener('click', async () => {
+    if ('wakeLock' in navigator) {
+        try {
+            if (!wakeLock) {
+                wakeLock = await navigator.wakeLock.request('screen');
+                preventSleepButton.classList.add('active');
+                logMessage('Screen sleep prevention activated', 'system');
+            } else {
+                await releaseWakeLock();
+                preventSleepButton.classList.remove('active');
+            }
+        } catch (error) {
+            logMessage(`Failed to toggle screen sleep prevention: ${error.message}`, 'system');
+        }
+    } else {
+        logMessage('Wake Lock API not supported', 'system');
+    }
+});
+
+// Update wake lock release function
+function releaseWakeLock() {
+    if (wakeLock) {
+        return wakeLock.release().then(() => {
+            wakeLock = null;
+            preventSleepButton.classList.remove('active');
+            logMessage('Screen sleep prevention deactivated', 'system');
+        });
+    }
+    return Promise.resolve();
+}
+
+// Use Back Camera Button
+const useBackCameraButton = document.getElementById('use-back-camera-button');
+useBackCameraButton.addEventListener('click', async () => {
+    try {
+        if (videoManager) {
+            useBackCameraButton.classList.toggle('active');
+            videoManager.facingMode = videoManager.facingMode === 'user' ? 'environment' : 'user';
+            await videoManager.start(videoManager.fps, videoManager.onFrame);
+            logMessage(`Switched to ${videoManager.facingMode === 'user' ? 'front' : 'back'} camera`, 'system');
+        } else {
+            logMessage('Video manager not initialized', 'system');
+        }
+    } catch (error) {
+        useBackCameraButton.classList.remove('active');
+        logMessage(`Failed to switch camera: ${error.message}`, 'system');
+    }
+});
+
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+        if (!isConnected) {
+            logMessage('Attempting to reconnect...', 'system');
+            await connectToWebsocket();
+        } else {
+            logMessage('Welcome back! Continuing the conversation.', 'system');
+            // 重新打开麦克风
+            await handleMicToggle();
+        }
+    } else {
+        logMessage('You have switched away from the app. Closing microphone.', 'system');
+        // 关闭麦克风
+        if (isRecording) {
+            await handleMicToggle();
+        }
+    }
+});

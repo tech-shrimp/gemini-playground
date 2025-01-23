@@ -20,6 +20,8 @@ export class AudioRecorder {
         this.source = null;
         this.processor = null;
         this.onAudioData = null;
+        this.gainNode = null;
+        this.volume = 1.0;
         
         // Bind methods to preserve context
         this.start = this.start.bind(this);
@@ -62,8 +64,13 @@ export class AudioRecorder {
                 }
             };
 
+            // Create gain node and set initial volume
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = this.volume;
+
             // Connect audio nodes
-            this.source.connect(this.processor);
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.processor);
             this.processor.connect(this.audioContext.destination);
             this.isRecording = true;
         } catch (error) {
@@ -142,4 +149,25 @@ export class AudioRecorder {
             );
         }
     }
-} 
+
+    /**
+     * @method setVolume
+     * @description Sets the recording volume level
+     * @param {number} volume - Volume level between 0 (mute) and 1 (max)
+     */
+    setVolume(volume) {
+        if (this.gainNode) {
+            // Ensure volume is clamped between 0 and 1
+            const clampedVolume = Math.max(0, Math.min(1, volume));
+            this.gainNode.gain.value = clampedVolume;
+            
+            // When volume is 0, disconnect the source to prevent any audio passing through
+            if (clampedVolume === 0) {
+                this.source.disconnect(this.gainNode);
+            } else if (!this.source.isConnected) {
+                // Reconnect if volume is restored
+                this.source.connect(this.gainNode);
+            }
+        }
+    }
+}

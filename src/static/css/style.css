@@ -425,6 +425,52 @@ body {
     gap: 5px;
 }
 
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.volume-control label {
+    font-size: 0.8em;
+    color: #666;
+    min-width: 80px;
+}
+
+#input-volume {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+#input-volume:hover {
+    opacity: 1;
+}
+
+#input-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4285f4;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#input-volume::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #4285f4;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
 .visualizer-container label {
     font-size: 0.8em;
     color: #666;
@@ -610,4 +656,59 @@ body {
 .fps-help {
     color: #666;
     font-size: 12px;
+}
+
+/* Add these styles after the #screen-button styles */
+
+#prevent-sleep-button,
+#use-back-camera-button {
+    background: #4285f4;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#prevent-sleep-button:hover,
+#use-back-camera-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#prevent-sleep-button:active,
+#use-back-camera-button:active {
+    transform: translateY(1px);
+}
+
+#prevent-sleep-button::after,
+#use-back-camera-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+#prevent-sleep-button:active::after,
+#use-back-camera-button:active::after {
+    width: 200px;
+    height: 200px;
+}
+
+#prevent-sleep-button.active {
+    background: #ea4335;
+}
+
+#use-back-camera-button.active {
+    background: #ea4335;
 }
