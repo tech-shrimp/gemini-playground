@@ -149,4 +149,25 @@ export class AudioRecorder {
             );
         }
     }
+
+    /**
+     * @method setVolume
+     * @description Sets the recording volume level
+     * @param {number} volume - Volume level between 0 (mute) and 1 (max)
+     */
+    setVolume(volume) {
+        if (this.gainNode) {
+            // Ensure volume is clamped between 0 and 1
+            const clampedVolume = Math.max(0, Math.min(1, volume));
+            this.gainNode.gain.value = clampedVolume;
+            
+            // When volume is 0, disconnect the source to prevent any audio passing through
+            if (clampedVolume === 0) {
+                this.source.disconnect(this.gainNode);
+            } else if (!this.source.isConnected) {
+                // Reconnect if volume is restored
+                this.source.connect(this.gainNode);
+            }
+        }
+    }
 }
