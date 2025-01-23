@@ -164,6 +164,10 @@ async function ensureAudioInitialized() {
     }
     if (!audioStreamer) {
         audioStreamer = new AudioStreamer(audioCtx);
+        // 创建gain node并将音量设置为2倍
+        const gainNode = audioCtx.createGain();
+        gainNode.gain.value = 2.0;
+        audioStreamer.setGainNode(gainNode);
         await audioStreamer.addWorklet('vumeter-out', 'js/audio/worklets/vol-meter.js', (ev) => {
             updateAudioVisualizer(ev.data.volume);
         });
