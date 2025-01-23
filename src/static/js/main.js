@@ -181,6 +181,11 @@ async function handleMicToggle() {
             await ensureAudioInitialized();
             audioRecorder = new AudioRecorder();
             
+            // Initialize gain node before starting recording
+            if (audioRecorder.gainNode) {
+                audioRecorder.gainNode.gain.value = inputVolumeSlider.value;
+            }
+            
             const inputAnalyser = audioCtx.createAnalyser();
             inputAnalyser.fftSize = 256;
             const inputDataArray = new Uint8Array(inputAnalyser.frequencyBinCount);
