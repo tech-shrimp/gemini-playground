@@ -576,6 +576,9 @@ screenButton.disabled = true;
 
 // 在页面加载时，从 localStorage 加载 API Key
 document.addEventListener('DOMContentLoaded', async () => {
+    // 设置音量滑块默认值为50%
+    inputVolumeSlider.value = 0.5;
+    
     const savedApiKey = localStorage.getItem('gemini_api_key');
     if (savedApiKey) {
         apiKeyInput.value = savedApiKey;
