@@ -75,6 +75,11 @@
             <div class="visualizer-container">
                 <label>Input Audio</label>
                 <div id="input-audio-visualizer"></div>
+                <div class="volume-control">
+                    <label>Input Volume:</label>
+                    <input type="range" id="input-volume" min="0" max="2" step="0.1" value="1">
+                    <span class="volume-value">100%</span>
+                </div>
             </div>
             <div class="visualizer-container">
                 <label>Output Audio</label>
@@ -97,4 +102,4 @@
     </div>
     <script src="js/main.js" type="module"></script>
 </body>
-</html> 
+</html>

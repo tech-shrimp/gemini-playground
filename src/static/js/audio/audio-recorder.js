@@ -20,13 +20,28 @@ export class AudioRecorder {
         this.source = null;
         this.processor = null;
         this.onAudioData = null;
+        this.gainNode = null;
+        this.volume = 1.0;
         
         // Bind methods to preserve context
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
+        this.setVolume = this.setVolume.bind(this);
 
         // Add state tracking
         this.isRecording = false;
+    }
+
+    /**
+     * @method setVolume
+     * @description Sets the input volume level
+     * @param {number} value - Volume level (0.0 to 2.0)
+     */
+    setVolume(value) {
+        this.volume = Math.max(0, Math.min(2, value));
+        if (this.gainNode) {
+            this.gainNode.gain.value = this.volume;
+        }
     }
 
     /**
@@ -62,8 +77,13 @@ export class AudioRecorder {
                 }
             };
 
+            // Create and configure gain node
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = this.volume;
+
             // Connect audio nodes
-            this.source.connect(this.processor);
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.processor);
             this.processor.connect(this.audioContext.destination);
             this.isRecording = true;
         } catch (error) {
@@ -142,4 +162,4 @@ export class AudioRecorder {
             );
         }
     }
-} 
+}

@@ -17,6 +17,21 @@ const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-button');
 const micButton = document.getElementById('mic-button');
 const micIcon = document.getElementById('mic-icon');
+const inputVolume = document.getElementById('input-volume');
+const volumeValue = document.querySelector('.volume-value');
+import { MultimodalLiveClient } from './core/websocket-client.js';
+import { AudioStreamer } from './audio/audio-streamer.js';
+import { AudioRecorder } from './audio/audio-recorder.js';
+import { CONFIG } from './config/config.js';
+import { Logger } from './utils/logger.js';
+import { VideoManager } from './video/video-manager.js';
+import { ScreenRecorder } from './video/screen-recorder.js';
+
+/**
+ * @fileoverview Main entry point for the application.
+ * Initializes and manages the UI, audio, video, and WebSocket interactions.
+ */
+
 const audioVisualizer = document.getElementById('audio-visualizer');
 const connectButton = document.getElementById('connect-button');
 const cameraButton = document.getElementById('camera-button');
@@ -179,6 +194,9 @@ async function handleMicToggle() {
         try {
             await ensureAudioInitialized();
             audioRecorder = new AudioRecorder();
+            
+            // 设置初始音量
+            audioRecorder.setVolume(parseFloat(inputVolume.value));
             
             const inputAnalyser = audioCtx.createAnalyser();
             inputAnalyser.fftSize = 256;
@@ -346,6 +364,15 @@ function handleSendMessage() {
 }
 
 // Event Listeners
+// 音量控制事件监听
+inputVolume.addEventListener('input', (e) => {
+    if (audioRecorder) {
+        const value = parseFloat(e.target.value);
+        audioRecorder.setVolume(value);
+        volumeValue.textContent = `${Math.round(value * 100)}%`;
+    }
+});
+
 client.on('open', () => {
     logMessage('WebSocket connection opened', 'system');
 });
@@ -666,4 +693,3 @@ document.addEventListener('visibilitychange', async () => {
         }
     }
 });
-  
