@@ -20,13 +20,30 @@ export class AudioRecorder {
         this.source = null;
         this.processor = null;
         this.onAudioData = null;
+        this.gainNode = null;
+        this.volume = CONFIG.AUDIO.DEFAULT_VOLUME;
         
         // Bind methods to preserve context
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
+        this.setVolume = this.setVolume.bind(this);
 
         // Add state tracking
         this.isRecording = false;
+    }
+
+    /**
+     * @method setVolume
+     * @description Sets the microphone input volume
+     * @param {number} value - Volume value between 0 and 1
+     */
+    setVolume(value) {
+        if (value >= 0 && value <= 1) {
+            this.volume = value;
+            if (this.gainNode) {
+                this.gainNode.gain.value = value;
+            }
+        }
     }
 
     /**
@@ -39,11 +56,14 @@ export class AudioRecorder {
     async start(onAudioData) {
         this.onAudioData = onAudioData;
         try {
-            // Request microphone access
+            // Request microphone access with disabled auto gain control
             this.stream = await navigator.mediaDevices.getUserMedia({ 
                 audio: {
                     channelCount: 1,
-                    sampleRate: this.sampleRate
+                    sampleRate: this.sampleRate,
+                    autoGainControl: CONFIG.AUDIO.AUTO_GAIN_CONTROL,
+                    echoCancellation: false,
+                    noiseSuppression: false
                 } 
             });
             
@@ -62,8 +82,13 @@ export class AudioRecorder {
                 }
             };
 
+            // Create and configure gain node
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = this.volume;
+
             // Connect audio nodes
-            this.source.connect(this.processor);
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.processor);
             this.processor.connect(this.audioContext.destination);
             this.isRecording = true;
         } catch (error) {
@@ -142,4 +167,4 @@ export class AudioRecorder {
             );
         }
     }
-} 
+}

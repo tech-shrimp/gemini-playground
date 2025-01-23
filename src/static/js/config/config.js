@@ -12,7 +12,9 @@ export const CONFIG = {
         SAMPLE_RATE: 16000,
         OUTPUT_SAMPLE_RATE: 24000,      // If you want to have fun, set this to around 14000 (u certainly will)
         BUFFER_SIZE: 2048,
-        CHANNELS: 1
+        CHANNELS: 1,
+        DEFAULT_VOLUME: 0.5,            // Default microphone input volume (50%)
+        AUTO_GAIN_CONTROL: false        // Disable automatic gain control
     },
     // If you are working in the RoArm branch 
     // ROARM: {
@@ -20,4 +22,4 @@ export const CONFIG = {
     // }
   };
   
-  export default CONFIG; 
+  export default CONFIG;
