@@ -36,6 +36,17 @@ const systemInstructionInput = document.getElementById('system-instruction');
 systemInstructionInput.value = CONFIG.SYSTEM_INSTRUCTION.TEXT;
 const applyConfigButton = document.getElementById('apply-config');
 const responseTypeSelect = document.getElementById('response-type-select');
+const inputVolumeSlider = document.getElementById('input-volume');
+const volumeValue = document.getElementById('volume-value');
+
+inputVolumeSlider.addEventListener('input', function() {
+    const volume = this.value / 100;
+    volumeValue.textContent = `${this.value}%`;
+    
+    if (audioRecorder && audioRecorder.gainNode) {
+        audioRecorder.gainNode.gain.value = volume;
+    }
+});
 
 // Load saved values from localStorage
 const savedApiKey = localStorage.getItem('gemini_api_key');
