@@ -20,11 +20,12 @@ export class AudioRecorder {
         this.source = null;
         this.processor = null;
         this.onAudioData = null;
+        this.gainNode = null; // 添加音量控制节点
         
         // Bind methods to preserve context
         this.start = this.start.bind(this);
         this.stop = this.stop.bind(this);
-
+    
         // Add state tracking
         this.isRecording = false;
     }
@@ -49,10 +50,19 @@ export class AudioRecorder {
             
             this.audioContext = new AudioContext({ sampleRate: this.sampleRate });
             this.source = this.audioContext.createMediaStreamSource(this.stream);
-
+            
+            // 创建并设置音量控制节点
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = 0.4; // 设置为40%音量
+            
             // Load and initialize audio worklet
             await this.audioContext.audioWorklet.addModule('js/audio/worklets/audio-processing.js');
             this.processor = new AudioWorkletNode(this.audioContext, 'audio-recorder-worklet');
+            
+            // 连接音频节点链: source -> gainNode -> processor -> destination
+            this.source.connect(this.gainNode);
+            this.gainNode.connect(this.processor);
+            this.processor.connect(this.audioContext.destination);
             
             // Handle processed audio data
             this.processor.port.onmessage = (event) => {
@@ -142,4 +152,4 @@ export class AudioRecorder {
             );
         }
     }
-} 
+}
