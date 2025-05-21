@@ -194,14 +194,49 @@ const harmCategory = [
   "HARM_CATEGORY_SEXUALLY_EXPLICIT",
   "HARM_CATEGORY_DANGEROUS_CONTENT",
   "HARM_CATEGORY_HARASSMENT",
-  "HARM_CATEGORY_CIVIC_INTEGRITY",
+  // "HARM_CATEGORY_CIVIC_INTEGRITY", // This category is not available for gemini-1.5-pro
+  "HARM_CATEGORY_UNSPECIFIED", // Placeholder, usually not set directly
 ];
-const safetySettings = harmCategory.map(category => ({
-  category,
-  threshold: "BLOCK_NONE",
-}));
+
+// Default safety settings (all BLOCK_NONE)
+const defaultSafetySettings = [
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+];
+
+// Helper function to map client safety profile to Gemini settings
+const mapSafetyProfileToGeminiSettings = (profile) => {
+  const settings = [
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+  ];
+
+  switch (profile) {
+    case "block_some":
+      return settings.map(s => {
+        if (s.category === "HARM_CATEGORY_DANGEROUS_CONTENT" ||
+            s.category === "HARM_CATEGORY_HARASSMENT" ||
+            s.category === "HARM_CATEGORY_HATE_SPEECH" ||
+            s.category === "HARM_CATEGORY_SEXUALLY_EXPLICIT") {
+          return { ...s, threshold: "BLOCK_ONLY_HIGH" };
+        }
+        return s;
+      });
+    case "block_most":
+      return settings.map(s => ({ ...s, threshold: "BLOCK_MEDIUM_AND_ABOVE" }));
+    case "block_none":
+    default:
+      return settings.map(s => ({ ...s, threshold: "BLOCK_NONE" }));
+  }
+};
+
+
 const fieldsMap = {
-  stop: "stopSequences",
+  // stop: "stopSequences", // Handled directly in transformConfig now
   n: "candidateCount", // not for streaming
   max_tokens: "maxOutputTokens",
   max_completion_tokens: "maxOutputTokens",
@@ -213,19 +248,30 @@ const fieldsMap = {
 };
 const transformConfig = (req) => {
   let cfg = {};
-  //if (typeof req.stop === "string") { req.stop = [req.stop]; } // no need
-  for (let key in req) {
-    const matchedKey = fieldsMap[key];
-    if (matchedKey) {
-      cfg[matchedKey] = req[key];
+  // Directly map known parameters from fieldsMap
+  for (let key in fieldsMap) {
+    if (req[key] !== undefined) {
+      cfg[fieldsMap[key]] = req[key];
     }
   }
+
+  // Handle temperature directly if present in req
+  if (req.temperature !== undefined) {
+    cfg.temperature = req.temperature;
+  }
+
+  // Handle stop sequences (client sends as req.stop)
+  if (req.stop && Array.isArray(req.stop) && req.stop.length > 0) {
+    cfg.stopSequences = req.stop;
+  }
+
+  // Handle response_format for structured output
   if (req.response_format) {
     switch(req.response_format.type) {
       case "json_schema":
         cfg.responseSchema = req.response_format.json_schema?.schema;
         if (cfg.responseSchema && "enum" in cfg.responseSchema) {
-          cfg.responseMimeType = "text/x.enum";
+          cfg.responseMimeType = "text/x.enum"; // This seems like a custom or specific use case
           break;
         }
         // eslint-disable-next-line no-fallthrough
@@ -239,6 +285,18 @@ const transformConfig = (req) => {
         throw new HttpError("Unsupported response_format.type", 400);
     }
   }
+
+  // If tools imply JSON output and responseMimeType isn't already set to JSON
+  if ((req.tools?.structuredOutput || req.tools?.functionCalling) && cfg.responseMimeType !== "application/json") {
+    // Only set if not already json, to avoid overriding a more specific schema like text/x.enum
+    if(cfg.responseMimeType !== "text/x.enum") {
+       cfg.responseMimeType = "application/json";
+    }
+  }
+  
+  // Language parameters: Gemini typically auto-detects. If a specific param like 'languageCode' was supported,
+  // it would be added here, e.g., if (req.languageCode) cfg.languageCode = req.languageCode;
+
   return cfg;
 };
 
@@ -328,11 +386,69 @@ const transformMessages = async (messages) => {
   return { system_instruction, contents };
 };
 
-const transformRequest = async (req) => ({
-  ...await transformMessages(req.messages),
-  safetySettings,
-  generationConfig: transformConfig(req),
-});
+const transformRequest = async (req) => {
+  const generationConfig = transformConfig(req);
+  const messages = await transformMessages(req.messages);
+  
+  let effectiveSafetySettings = defaultSafetySettings;
+  if (req.safety) {
+    effectiveSafetySettings = mapSafetyProfileToGeminiSettings(req.safety);
+  }
+
+  const requestBody = {
+    ...messages,
+    safetySettings: effectiveSafetySettings,
+    generationConfig,
+    tools: [] // Initialize tools array
+  };
+
+  // Handle Grounding with Google Search
+  if (req.tools?.groundingSearch) {
+    if (!requestBody.tools) requestBody.tools = []; // Ensure tools array exists
+    requestBody.tools.push({ googleSearchRetrieval: {} });
+  }
+
+  // Handle Function Calling
+  if (req.tools?.functionCalling) {
+    if (!requestBody.tools) requestBody.tools = []; // Ensure tools array exists
+    
+    const sampleFunctionDeclarations = [
+      {
+        name: "get_weather",
+        description: "Get the current weather in a given location",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            location: {
+              type: "STRING",
+              description: "The city and state, e.g. San Francisco, CA"
+            }
+          },
+          required: ["location"]
+        }
+      }
+    ];
+
+    // Check if functionDeclarations tool already exists (e.g., from another source or future extension)
+    let functionTool = requestBody.tools.find(tool => tool.functionDeclarations);
+    if (!functionTool) {
+      requestBody.tools.push({ functionDeclarations: sampleFunctionDeclarations });
+    } else {
+      // If it exists, merge or replace. For this example, we'll overwrite with sample.
+      // In a more complex scenario, you might concatenate or merge arrays of declarations.
+      functionTool.functionDeclarations = sampleFunctionDeclarations;
+    }
+  }
+
+  // If after all checks, no tools were actually added, remove the empty tools array
+  if (requestBody.tools && requestBody.tools.length === 0) {
+    delete requestBody.tools;
+  }
+  
+  // "Thinking" parameters (thinkingModeEnabled, thinkingBudget) are ignored as they don't map to Gemini API.
+
+  return requestBody;
+};
 
 const generateChatcmplId = () => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

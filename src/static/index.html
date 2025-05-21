@@ -15,9 +15,134 @@
 </head>
 <body>
     <div id="app">
+        <!-- 1. Top Toolbar Area -->
+        <header id="top-toolbar">
+            <div class="toolbar-group left">
+                <!-- Placeholder for a logo or title if needed later -->
+                <span style="font-weight: bold; font-size: 1.2em; margin-left: 8px;">Gemini Client</span>
+            </div>
+
+            <div class="toolbar-group center">
+                <button id="history-btn" aria-label="History"><span class="material-symbols-outlined">history</span></button>
+                <button id="code-btn" aria-label="View Code"><span class="material-symbols-outlined">code</span></button>
+                <button id="share-btn" aria-label="Share"><span class="material-symbols-outlined">share</span></button>
+                <button id="save-btn" aria-label="Save Chat"><span class="material-symbols-outlined">save</span></button>
+            </div>
+
+            <div class="toolbar-group right">
+                <button id="reset-btn" aria-label="Reset Chat"><span class="material-symbols-outlined">delete_sweep</span></button>
+                <button id="refresh-btn" aria-label="Refresh"><span class="material-symbols-outlined">refresh</span></button>
+                <input type="password" id="api-key" placeholder="Gemini API Key" /> <!-- Moved from old .settings -->
+                <button id="config-toggle-btn" aria-label="Settings"><span class="material-symbols-outlined">settings</span></button> <!-- Was #config-toggle -->
+            </div>
+        </header>
+
+        <div id="main-content">
+            <!-- 2. Central Chat Area -->
+            <main id="chat-area">
+                <div id="chat-messages">
+                    <!-- Existing logs-container will be repurposed or replaced here -->
+                    <div id="logs-container"></div>
+                </div>
+                <div id="chat-input-container">
+                    <button id="add-io-pair-btn" aria-label="Add input/output pair">
+                        <span class="material-symbols-outlined">add_circle</span>
+                    </button>
+                    <textarea id="message-input" placeholder="Enter message..." rows="1"></textarea> <!-- Changed to textarea, default rows="1" -->
+                    <button id="run-button" aria-label="Run prompt"> <!-- Was send-button -->
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                    <button id="mic-button" aria-label="Use Microphone">
+                        <span id="mic-icon" class="material-symbols-outlined">mic</span>
+                    </button>
+                    <button id="camera-button" aria-label="Use Camera">
+                        <span id="camera-icon" class="material-symbols-outlined">videocam</span>
+                    </button>
+                    <button id="screen-button" aria-label="Share Screen">
+                        <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
+                    </button>
+                </div>
+            </main>
+
+            <!-- 3. Right Sidebar ("Run settings") -->
+            <aside id="right-sidebar">
+                <h3>Run Settings</h3>
+
+                <div class="setting-group">
+                    <label for="model-select">Model:</label>
+                    <select id="model-select" name="model-select">
+                        <!-- Options will be populated dynamically later -->
+                        <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Placeholder)</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label for="token-count">Token Count:</label>
+                    <span id="token-count-display">0 / 0</span> <!-- Will be updated dynamically -->
+                </div>
+
+                <div class="setting-group">
+                    <label for="temperature-slider">Temperature:</label>
+                    <input type="range" id="temperature-slider" name="temperature-slider" min="0" max="1" step="0.1" value="0.7">
+                    <input type="number" id="temperature-input" name="temperature-input" min="0" max="1" step="0.1" value="0.7">
+                </div>
+
+                <h4>Thinking</h4>
+                <div class="setting-group">
+                    <label for="thinking-mode">Enable Thinking Mode:</label>
+                    <input type="checkbox" id="thinking-mode" name="thinking-mode">
+                </div>
+                <div class="setting-group">
+                    <label for="thinking-budget">Set Thinking Budget:</label>
+                    <input type="number" id="thinking-budget" name="thinking-budget" disabled> <!-- Initially disabled -->
+                </div>
+
+                <h4>Tools</h4>
+                <div class="setting-group">
+                    <input type="checkbox" id="tool-structured-output" name="tool-structured-output">
+                    <label for="tool-structured-output">Structured Output (JSON)</label>
+                </div>
+                <div class="setting-group">
+                    <input type="checkbox" id="tool-code-execution" name="tool-code-execution">
+                    <label for="tool-code-execution">Code Execution</label>
+                </div>
+                <div class="setting-group">
+                    <input type="checkbox" id="tool-function-calling" name="tool-function-calling">
+                    <label for="tool-function-calling">Function Calling</label>
+                </div>
+                <div class="setting-group">
+                    <input type="checkbox" id="tool-grounding-search" name="tool-grounding-search">
+                    <label for="tool-grounding-search">Grounding with Google Search</label>
+                </div>
+
+                <details id="advanced-settings">
+                    <summary>Advanced Settings</summary>
+                    <div class="setting-group">
+                        <label for="safety-settings">Safety Settings:</label>
+                        <select id="safety-settings" name="safety-settings">
+                            <option value="block_none">Block None</option>
+                            <option value="block_some">Block Some</option>
+                            <option value="block_most">Block Most</option>
+                        </select>
+                        <!-- More detailed safety settings could be added later -->
+                    </div>
+                    <div class="setting-group">
+                        <label for="stop-sequence-input">Add Stop Sequence:</label>
+                        <input type="text" id="stop-sequence-input" name="stop-sequence-input" placeholder="e.g., ###">
+                        <button id="add-stop-sequence-btn">Add</button>
+                        <div id="stop-sequences-list">
+                            <!-- Stop sequences will be listed here -->
+                        </div>
+                    </div>
+                </details>
+            </aside>
+        </div>
+
+        <!-- Existing settings and config-container commented out for now -->
+        <!--
         <div class="settings">
-            <input type="password" id="api-key" placeholder="Please Input Gemini API Key" />
-            <button id="config-toggle" class="material-symbols-outlined">settings</button>
+            <input type="password" id="api-key" placeholder="Please Input Gemini API Key" /> //MOVED TO TOOLBAR
+            <button id="config-toggle" class="material-symbols-outlined">settings</button> //MOVED TO TOOLBAR AS config-toggle-btn
         </div>
         <div id="config-container" class="hidden-mobile">
             <div class="config-wrapper">
@@ -47,19 +172,8 @@
                 <button id="apply-config">Confirm</button>
             </div>
         </div>
+        -->
         <button id="connect-button">Connect</button>
-        <div id="logs-container"></div>
-        <input type="text" id="message-input" placeholder="Enter message...">
-        <button id="send-button">Send</button>
-        <button id="mic-button">
-            <span id="mic-icon" class="material-symbols-outlined">mic</span>
-        </button>
-        <button id="camera-button">
-            <span id="camera-icon" class="material-symbols-outlined">videocam</span>
-        </button>
-        <button id="screen-button">
-            <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
-        </button>
         <div class="audio-visualizers">
             <div class="visualizer-container">
                 <label>Input Audio</label>

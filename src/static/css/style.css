@@ -1,396 +1,528 @@
 :root {
-    --primary-color: #4285f4;
-    --secondary-color: #34a853;
-    --danger-color: #ea4335;
-    --background-color: #f0f0f0;
-    --surface-color: #fff;
-    --border-color: #ccc;
-    --text-color: #333;
-    --text-secondary: #666;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --border-radius: 8px;
+    --primary-color: #4285f4; /* Google Blue */
+    --secondary-color: #34a853; /* Google Green */
+    --danger-color: #ea4335; /* Google Red */
+    --background-color: #f0f0f0; /* Light grey background */
+    --surface-color: #fff; /* White surfaces */
+    --border-color: #dadce0; /* Google-like border color */
+    --text-color: #202124; /* Dark grey for primary text */
+    --text-secondary: #5f6368; /* Lighter grey for secondary text */
+    --primary-color-rgb: 66, 133, 244;
+
+    --border-radius: 4px;
+    --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
-    --primary-color-rgb: 66, 133, 244;
 }
 
 body {
-    font-family: sans-serif;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 100vh;
-    background-color: #f0f0f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.5;
 }
 
 #app {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    max-width: none; /* Override previous max-width */
+    background-color: var(--surface-color); /* Ensure app background is white */
+    box-shadow: none; /* Remove previous shadow */
+    border-radius: 0; /* No border radius for full viewport */
+    padding: 0; /* No padding for full viewport */
+}
+
+#top-toolbar {
+    display: flex;
+    justify-content: space-between; /* Distribute groups */
+    align-items: center;
+    padding: 0 var(--spacing-md); /* Adjust padding as needed */
+    height: 60px; /* Keep consistent with previous step */
+    background-color: #f8f9fa; /* Or another suitable color */
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevent toolbar from shrinking */
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* Spacing between items in a group */
+}
+
+#top-toolbar button {
+    background: none;
+    border: none;
+    padding: var(--spacing-sm);
+    border-radius: 50%; /* For circular icon buttons */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary); /* Icon color */
+    transition: background-color 0.2s ease;
+}
+
+#top-toolbar button .material-symbols-outlined {
+    font-size: 24px; /* Adjust icon size */
+}
+
+#top-toolbar button:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Subtle hover effect */
+}
+
+/* Specifically target API key and config toggle if they need different styling than other buttons */
+#api-key {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-left: var(--spacing-md); /* Space it from buttons */
+    font-size: 14px; /* Ensure font size is appropriate */
+}
+#api-key:focus { /* Keep focus style consistent */
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+
+#config-toggle-btn { /* Style for the settings button, similar to other icon buttons */
+    /* Inherits general #top-toolbar button styles, add specifics if needed */
+}
+
+
+#main-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden; /* Prevent overall page scroll if sidebars scroll */
+}
+
+#chat-area {
+    flex-grow: 3; /* Takes approx 75% width */
+    display: flex;
+    flex-direction: column;
+    /* padding: var(--spacing-md); Removed padding to allow chat-messages to have its own */
+    background-color: var(--surface-color);
+}
+
+#chat-messages { /* This will contain #logs-container */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md); /* Space between messages and input */
+    border: none; /* Remove previous border if any */
 }
 
 #logs-container {
-    border: 1px solid #ccc;
-    height: 300px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-    scroll-behavior: smooth;
+    /* border: 1px solid var(--border-color); */ /* Removed, chat-messages has styling */
+    height: auto; /* Allow it to fill space within chat-messages */
+    min-height: 100px; /* Ensure it's visible */
+    overflow-y: auto; /* Already scrollable, but good to ensure */
+    /* margin-bottom: 0; */ /* No margin, padding is on chat-messages */
+    padding: 0; /* No padding, padding is on chat-messages */
+    /* background: transparent; */ /* Inherit from parent */
+    /* scroll-behavior: smooth; */ /* Keep this */
 }
 
-#logs-container:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
 
 .log-entry {
     font-size: 0.9em;
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
 }
 
 .log-entry.system {
-    color: #080; /* Green for system messages */
+    color: var(--secondary-color);
+    background-color: #e6f4ea;
 }
 
 .log-entry.user {
-    color: #008; /* Blue for user messages */
+    color: var(--primary-color);
+    background-color: #e8f0fe;
+    text-align: right;
 }
 
 .log-entry.ai {
-    color: #800; /* Red for AI messages */
+    color: #3c4043; /* Darker text for AI for readability */
+    background-color: #f1f3f4; /* Light grey for AI messages */
 }
 
 .log-entry .timestamp {
-    color: #888;
-    margin-right: 5px;
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    margin-right: var(--spacing-sm);
 }
 
 .log-entry .emoji {
-    margin-right: 5px;
+    margin-right: var(--spacing-sm);
 }
 
-#message-input {
-    width: calc(100% - 100px);
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 10px;
+#chat-input-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--surface-color); /* Ensure it has a background */
+    align-items: center; /* Vertically center items */
+    gap: var(--spacing-sm); /* Add gap between items */
 }
 
-#send-button, #mic-button {
-    padding: 10px;
+#add-io-pair-btn {
+    background: none;
     border: none;
-    border-radius: 4px;
-    background-color: #4285f4;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-#send-button:hover, #mic-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#send-button:active, #mic-button:active {
-    transform: translateY(1px);
-}
-
-#send-button::after, #mic-button::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
+    padding: var(--spacing-sm); /* Consistent padding */
     border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s ease, height 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
 }
 
-#send-button:active::after, #mic-button:active::after {
-    width: 200px;
-    height: 200px;
+#add-io-pair-btn .material-symbols-outlined {
+    font-size: 24px;
 }
 
-#audio-visualizer {
-    width: 100%;
-    height: 20px;
-    background-color: #eee;
-    margin-top: 10px;
-    border-radius: 4px;
-    overflow: hidden;
+#add-io-pair-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.audio-bar {
-    height: 100%;
-    background-color: #4285f4;
-    width: 0%;
+#message-input { /* Now a textarea */
+    flex-grow: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: 20px; /* Rounded corners for modern chat input */
+    font-size: 16px;
+    resize: none; /* Disable manual resize by user */
+    min-height: calc(1.5em + (var(--spacing-sm) * 2)); /* For a single line + padding */
+    max-height: 120px; /* Limit expansion to about 5-6 lines */
+    overflow-y: auto; /* Add scrollbar if content overflows max-height */
+    line-height: 1.5; /* Improve readability for multi-line text */
 }
 
-/* Add a simple animation for the audio bars */
-@keyframes audio-pulse {
-    0% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(1.5);
-    }
-    100% {
-        transform: scaleY(1);
-    }
+#message-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
 }
 
-.audio-bar.active {
-    animation: audio-pulse 0.5s infinite;
-}
-
-#connect-button {
-    padding: 10px 20px;
-    margin-bottom: 10px;
+#run-button { /* Was send-button */
+    background-color: var(--primary-color);
+    color: white;
     border: none;
-    border-radius: 4px;
-    background-color: #34a853;
+    padding: var(--spacing-sm); /* Adjust padding for circular button */
+    border-radius: 50%; /* Make it circular */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+#run-button .material-symbols-outlined {
+    font-size: 24px;
+}
+#run-button:hover {
+    background-color: #1a73e8; /* Darker shade of primary for hover */
+}
+
+
+#mic-button,
+#camera-button,
+#screen-button {
+    background: none; /* Ensure consistent styling with add-io-pair-btn */
+    padding: var(--spacing-sm); /* Consistent padding */
+    border: none;
+    border-radius: 50%; /* Circular icon buttons */
+    color: var(--text-secondary); /* Icon color */
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+#mic-button .material-symbols-outlined,
+#camera-button .material-symbols-outlined,
+#screen-button .material-symbols-outlined {
+    font-size: 24px;
+}
+
+#mic-button:hover,
+#camera-button:hover,
+#screen-button:hover {
+    background-color: rgba(0,0,0,0.05); /* Subtle hover for icon buttons */
+}
+
+#mic-button.active, #camera-button.active, #screen-button.active {
+    background-color: var(--danger-color); /* Active state maintains a background */
+    color: white; /* Icon color changes for active state */
+}
+#mic-button.active:hover, #camera-button.active:hover, #screen-button.active:hover {
+    background-color: #c53929; /* Darker red for active hover */
+}
+
+#right-sidebar {
+    flex-grow: 1; /* Takes approx 25% width */
+    max-width: 320px; /* Max width for sidebar */
+    min-width: 280px; /* Min width for sidebar */
+    background-color: #f8f9fa; /* Slightly off-white, Google-like */
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    border-left: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevent sidebar from shrinking too much */
+}
+
+#right-sidebar h3,
+#right-sidebar h4 {
+    color: var(--text-color);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+#right-sidebar h3:first-child {
+    margin-top: 0;
+}
+
+#right-sidebar h4 {
+    font-size: 1.1em;
+    margin-top: var(--spacing-md); /* More space above h4 */
+}
+
+.setting-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.setting-group input[type="text"],
+.setting-group input[type="number"],
+.setting-group select,
+.setting-group textarea { /* Added textarea for system-instruction if moved here */
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+}
+
+.setting-group input[type="text"]:focus,
+.setting-group input[type="number"]:focus,
+.setting-group select:focus,
+.setting-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.setting-group input[type="range"] {
+    width: 100%;
+    margin-top: var(--spacing-xs);
+}
+
+.setting-group input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    vertical-align: middle;
+}
+.setting-group label[for*="tool-"], 
+.setting-group label[for="thinking-mode"] { /* Labels next to checkboxes */
+    display: inline;
+    font-weight: normal;
+    color: var(--text-color);
+}
+
+
+.setting-group .temperature-inputs {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+.setting-group .temperature-inputs input[type="range"] {
+    flex-grow: 1;
+}
+.setting-group .temperature-inputs input[type="number"] {
+    width: 70px; /* Fixed width for temperature number input */
+}
+
+
+details#advanced-settings {
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+}
+
+details#advanced-settings summary {
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: var(--spacing-sm) 0;
+    list-style: none; /* Remove default marker */
+    display: flex;
+    justify-content: space-between;
+}
+details#advanced-settings summary::-webkit-details-marker { display: none; } /* Chrome/Safari */
+details#advanced-settings summary::marker { display: none; } /* Firefox */
+
+details#advanced-settings summary::after {
+    content: 'keyboard_arrow_down'; /* Material icon for dropdown */
+    font-family: 'Material Symbols Outlined'; /* Ensure this is loaded if using icons */
+    transition: transform 0.2s ease-in-out;
+}
+details#advanced-settings[open] summary::after {
+    transform: rotate(180deg);
+}
+
+#add-stop-sequence-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: var(--spacing-xs); /* Space from input */
+}
+#add-stop-sequence-btn:hover {
+    background-color: #2e8c4a; /* Darker green */
+}
+
+#stop-sequences-list {
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    min-height: 40px;
+    background-color: var(--surface-color);
+}
+/* Styles for items within stop-sequences-list will be added when items exist */
+
+
+/* Connect button styling (if it's globally positioned or part of toolbar) */
+#connect-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--secondary-color);
     color: #fff;
     cursor: pointer;
     font-weight: bold;
+    margin-left: auto; /* Example: if in toolbar and on the right */
 }
 
 #connect-button.connected {
-    background-color: #ea4335;
+    background-color: var(--danger-color);
 }
 
+/* Settings icon and panel (old elements, might be repurposed) */
+#config-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    margin-left: var(--spacing-md);
+}
+
+/* Old config panel - keeping some styles if it's reused or adapted */
+#config-container {
+    position: fixed; /* Example: if it becomes a modal or drawer */
+    top: 60px; /* Below toolbar */
+    right: 0;
+    width: 300px;
+    background: var(--surface-color);
+    padding: var(--spacing-lg);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+#config-container.active {
+    transform: translateX(0);
+}
+
+.config-wrapper {
+    display: grid;
+    gap: var(--spacing-md);
+}
+#apply-config {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+
+/* Video & Screen Preview (keep existing styles, adjust if needed) */
 #video-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 480px;
-    z-index: 100;
-}
-
-#video-container video {
-    width: 100%;
-    border-radius: 8px;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 320px; /* Adjusted size */
+    z-index: 1000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.video-controls {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 101;
-}
-
-#stop-video {
-    background: #ea4335;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#stop-video:hover {
-    background: #d33426;
-}
-
-#flip-camera {
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#camera-button {
-    background: #4285f4;
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    margin-left: 8px;
-    transition: all 0.2s ease;
-    position: relative;
+    border-radius: var(--border-radius);
     overflow: hidden;
 }
+#video-container video { width: 100%; display: block; }
 
-#camera-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#camera-button:active {
-    transform: translateY(1px);
-}
-
-#camera-button::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s ease, height 0.3s ease;
-}
-
-#camera-button:active::after {
-    width: 200px;
-    height: 200px;
-}
-
-#camera-button.active {
-    background: #ea4335;
-}
-
-#frame-preview {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 120px;
-    height: 90px;
-    border: 2px solid rgba(66, 133, 244, 0.8);
-    border-radius: 4px;
-    background: #000;
-    z-index: 2;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-#frame-preview:hover {
-    transform: scale(1.1);
-    border-color: #4285f4;
-}
-
-#frame-preview.enlarged {
-    width: 480px;
-    height: 360px;
-    bottom: 50%;
-    right: 50%;
-    transform: translate(50%, 50%);
-    z-index: 4;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-/* Add overlay when preview is enlarged */
-#frame-preview.enlarged::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: -1;
-}
-
-/* Improve video controls visibility */
 .video-controls {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    z-index: 1001;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
+#video-container:hover .video-controls { opacity: 1; }
 
-#video-container:hover .video-controls {
-    opacity: 1;
-}
-
-#screen-button {
-    background: #4285f4;
+#stop-video, #flip-camera {
+    background: rgba(0,0,0,0.6);
     color: white;
     border: none;
-    padding: 8px;
-    border-radius: 50%;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
     cursor: pointer;
-    margin-left: 8px;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
+    margin-left: var(--spacing-xs);
 }
+#stop-video:hover, #flip-camera:hover { background: rgba(0,0,0,0.8); }
 
-#screen-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
 
-#screen-button:active {
-    transform: translateY(1px);
-}
-
-#screen-button::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s ease, height 0.3s ease;
-}
-
-#screen-button:active::after {
-    width: 200px;
-    height: 200px;
-}
-
-#screen-button.active {
-    background: #ea4335;
-}
-
-/* Add styles for screen preview */
 #screen-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    bottom: var(--spacing-md); /* Match video container */
+    left: var(--spacing-md); /* Position on the left */
+    width: 320px;
+    /* height: 240px; */ /* Aspect ratio will be managed by video */
     background: #000;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    width: 480px;
-    height: 360px;
-    transition: all 0.3s ease;
-    display: none;
     z-index: 1000;
+    /* display: none; */ /* Controlled by JS */
 }
+#screen-preview { width: 100%; display: block; }
 
-#screen-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background: #000;
-    display: block;
-}
-
-/* Add hover effect */
-#screen-container:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-}
-
-/* Add a close button */
 #screen-container .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.5);
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background: rgba(0,0,0,0.6);
     color: white;
     border: none;
     border-radius: 50%;
@@ -402,212 +534,135 @@ body {
     justify-content: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 1001;
 }
+#screen-container:hover .close-button { opacity: 1; }
+#screen-container .close-button:hover { background: rgba(0,0,0,0.8); }
 
-#screen-container:hover .close-button {
-    opacity: 1;
-}
 
-#screen-container .close-button:hover {
-    background: rgba(0, 0, 0, 0.8);
-}
-
+/* Audio visualizers */
 .audio-visualizers {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin: 10px 0;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0; /* Add some margin if they are in main flow */
+    padding: 0 var(--spacing-md); /* Padding if they are in main flow */
 }
-
 .visualizer-container {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--spacing-xs);
 }
-
 .visualizer-container label {
     font-size: 0.8em;
-    color: #666;
+    color: var(--text-secondary);
 }
-
 #input-audio-visualizer,
 #audio-visualizer {
     width: 100%;
-    height: 20px;
-    background-color: #eee;
-    border-radius: 4px;
+    height: 10px; /* Slimmer visualizer */
+    background-color: #e0e0e0;
+    border-radius: var(--border-radius);
     overflow: hidden;
 }
+#input-audio-visualizer .audio-bar { background-color: var(--secondary-color); }
+#audio-visualizer .audio-bar { background-color: var(--primary-color); }
+.audio-bar { height: 100%; width: 0%; transition: width 0.1s linear; }
 
-#input-audio-visualizer .audio-bar {
-    height: 100%;
-    background-color: #34a853; /* Green for input audio */
-    width: 0%;
-}
 
-#audio-visualizer .audio-bar {
-    height: 100%;
-    background-color: #4285f4; /* Blue for output audio */
-    width: 0%;
-}
-
-/* Update the animation for both visualizers */
-@keyframes audio-pulse {
-    0% {
-        transform: scaleY(1);
+/* Basic Responsiveness */
+@media (max-width: 900px) { /* Increased breakpoint for sidebar stacking */
+    #main-content {
+        flex-direction: column;
     }
-    50% {
-        transform: scaleY(1.5);
+    #right-sidebar {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        max-width: none; /* Allow sidebar to take full width when stacked */
+        min-width: 0;
     }
-    100% {
-        transform: scaleY(1);
+    #chat-area {
+        /* Ensure chat area still takes up significant height */
+        min-height: 60vh;
     }
 }
 
-.audio-bar.active {
-    animation: audio-pulse 0.5s infinite;
+@media (max-width: 600px) {
+    #top-toolbar {
+        padding: 0 var(--spacing-sm);
+        height: 50px;
+    }
+    #chat-input-container {
+        padding: var(--spacing-sm);
+        flex-wrap: wrap; /* Allow buttons to wrap */
+    }
+    #message-input {
+        font-size: 14px;
+    }
+    #send-button,
+    #mic-button,
+    #camera-button,
+    #screen-button {
+        padding: var(--spacing-sm);
+        font-size: 12px; /* Smaller buttons */
+    }
+    #send-button { /* Make send button more prominent on mobile */
+        flex-basis: 100%;
+        margin-top: var(--spacing-sm);
+    }
+
+    #right-sidebar {
+        padding: var(--spacing-sm);
+    }
+    .setting-group input[type="text"],
+    .setting-group input[type="number"],
+    .setting-group select,
+    .setting-group textarea {
+        font-size: 13px;
+    }
+
+    /* Hide video/screen previews or make them smaller on very small screens */
+    #video-container, #screen-container {
+        width: 40%;
+        max-height: 30vh;
+    }
 }
 
-.settings {
-    margin-bottom: 10px;
-    display: flex;
-    gap: 10px;
+/* Hidden class (re-add if needed from original) */
+.hidden {
+    display: none !important;
+}
+.hidden-mobile { /* From original, might be useful */
+    /* display: none; */ /* This is handled by media query if needed */
+}
+/* Additional styling for fps-help and other minor elements if they are part of the new structure */
+.fps-help {
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    display: block; /* Make it appear below the input */
+    margin-top: var(--spacing-xs);
 }
 
-#api-key {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 300px;
-}
-
-#voice-select  #response-type-select{
-    padding: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
- 
-/* Configuration panel */
-#config-container {
-    background: var(--surface-color);
-    padding: var(--spacing-lg);
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    display: none;
-}
-
-#config-container.active {
-    display: block;
-}
-.config-wrapper {
-    display: grid;
-    gap: var(--spacing-md);
-    max-width: 600px;
-    margin: 0 auto;
-}
-#apply-config {
-    padding: var(--spacing-md);
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-#apply-config:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-#system-instruction {
-    padding: var(--spacing-md);
+/* Ensure API key input in top bar (if moved there) is styled */
+#api-key { /* Assuming this ID is kept if moved to toolbar */
+    padding: var(--spacing-sm);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 14px;
 }
-
-/* Responsive styles */
-@media (max-width: 768px) {
-    #app {
-        padding: var(--spacing-sm);
-        width: 96%;
-    }
-
-    .hidden-mobile {
-        display: none;
-    }
-
-    #config-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        overflow-y: auto;
-        display: block;
-        background: var(--surface-color);
-        padding: var(--spacing-lg);
-    }
-
-    #config-container.active {
-        transform: translateX(0);
-    }
-
-    .logs-wrapper {
-        max-height: 30vh;
-    }
-
-    #logs-container {
-        max-height: calc(30vh - 50px);
-    }
-
-    .input-controls {
-        position: sticky;
-        bottom: 0;
-        background: var(--surface-color);
-        padding: var(--spacing-md);
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-    }
-
-    .action-buttons {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    #video-container {
-        width: 60%;
-        max-height: 40vh;
-        bottom: 0;
-        right: 0;
-    }
-
-    #screen-container {
-        width: 100%;
-        height: 50vh;
-        bottom: 0;
-        left: 0;
-        right: auto;
-    }
+#api-key:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
 }
 
-.setting-container {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
+/* Style for settings button in top bar */
+#config-toggle.material-symbols-outlined {
+    font-size: 24px; /* Adjust as needed */
+    color: var(--text-secondary);
+}
+#config-toggle.material-symbols-outlined:hover {
+    color: var(--text-color);
 }
 
-.setting-label {
-    font-size: 12px;
-    font-weight: bold;
-}
-
-
-.fps-help {
-    color: #666;
-    font-size: 12px;
-}
+```
