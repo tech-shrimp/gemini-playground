@@ -10,16 +10,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gemini Multimodal Live API Client</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="app">
+        <h1 class="app-title">Gemini Multimodal Live API Client</h1>
         <div class="settings">
             <input type="password" id="api-key" placeholder="Please Input Gemini API Key" />
             <button id="config-toggle" class="material-symbols-outlined">settings</button>
         </div>
-        <div id="config-container" class="hidden-mobile">
+        <div id="config-container">
             <div class="config-wrapper">
                 <div class="setting-container">
                     <span class="setting-label">Language: </span>
@@ -46,7 +48,7 @@
                 <div class="setting-container">
                     <span class="setting-label">Video FPS: </span>
                     <input type="number" id="fps-input" placeholder="Video FPS" value="1" min="1" max="30" step="1"/>
-                    <span class="fps-help">Higher FPS need more network bandwidth</span>
+                    <span class="fps-help">Higher FPS need more network/bandwidth</span>
                 </div>
                 <textarea id="system-instruction" placeholder="Enter custom system instructions..." rows="6"></textarea>
                 <button id="apply-config">Confirm</button>
@@ -54,17 +56,19 @@
         </div>
         <button id="connect-button">Connect</button>
         <div id="logs-container"></div>
-        <input type="text" id="message-input" placeholder="Enter message...">
-        <button id="send-button">Send</button>
-        <button id="mic-button">
-            <span id="mic-icon" class="material-symbols-outlined">mic</span>
-        </button>
-        <button id="camera-button">
-            <span id="camera-icon" class="material-symbols-outlined">videocam</span>
-        </button>
-        <button id="screen-button">
-            <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
-        </button>
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="Enter message...">
+            <button id="send-button">Send</button>
+            <button id="mic-button">
+                <span id="mic-icon" class="material-symbols-outlined">mic</span>
+            </button>
+            <button id="camera-button">
+                <span id="camera-icon" class="material-symbols-outlined">videocam</span>
+            </button>
+            <button id="screen-button">
+                <span id="screen-icon" class="material-symbols-outlined">screen_share</span>
+            </button>
+        </div>
         <div class="audio-visualizers">
             <div class="visualizer-container">
                 <label>Input Audio</label>
@@ -86,7 +90,7 @@
         </div>
         <div id="screen-container" style="display: none;">
             <video id="screen-preview" playsinline autoplay muted></video>
-            <button class="close-button material-symbols-outlined">close</button>
+            <button id="stopScreenShareButton" class="close-button material-symbols-outlined">close</button>
         </div>
     </div>
     <script src="js/main.js" type="module"></script>

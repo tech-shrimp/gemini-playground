@@ -570,4 +570,8 @@ function stopScreenSharing() {
 }
 
 screenButton.addEventListener('click', handleScreenShare);
+const stopScreenShareButton = document.getElementById('stopScreenShareButton');
+if (stopScreenShareButton) {
+    stopScreenShareButton.addEventListener('click', stopScreenSharing);
+}
 screenButton.disabled = true;

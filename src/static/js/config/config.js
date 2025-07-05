@@ -1,7 +1,9 @@
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 export const CONFIG = {
     API: {
         VERSION: 'v1beta',
-        MODEL_NAME: 'models/gemini-live-2.5-flash-preview'
+        MODEL_NAME: 'models/gemini-live-2.5-flash-preview',
+        SERVER_URL: `${wsProtocol}//${window.location.host}`,
     },
     // You can change the system instruction to your liking
     SYSTEM_INSTRUCTION: {
